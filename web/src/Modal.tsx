@@ -66,7 +66,8 @@ export default function Modal({ words } : { words: Array<Word> }) {
                         Calculating...
                     </div>
                     :
-                    <div className="w-full h-full flex flex-col items-center justify-center overflow-hidden p-10 gap-5">
+                    <motion.div className="w-full h-full flex flex-col items-center justify-center overflow-hidden p-10 gap-5"
+                    >
                         {
                             ansawer.map((ans: any, i: number) => (
                                 <motion.span className="text-2xl font-bold"
@@ -79,7 +80,7 @@ export default function Modal({ words } : { words: Array<Word> }) {
                                 </motion.span>
                             ))
                         }
-                    </div>
+                    </motion.div>
                 }
 
             </motion.div>

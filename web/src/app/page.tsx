@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import Dropdown from 'react-dropdown';
 import 'react-dropdown/style.css';
-import { motion, AnimatePresence, useMotionValue } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Modal from "@/Modal";
 
 const operations = ["+", "-", "*", "/"];
@@ -20,6 +20,7 @@ export default function Home() {
     const [operation, setOperation] = useState<string>(operations[0]);
     const [inital, setInitial] = useState<boolean>(true);
     const [displayModal, setDisplayModal] = useState<boolean>(false);
+    const [displaySettings, setDisplaySettings] = useState<boolean>(false);
 
     const inputref = useRef<HTMLInputElement>();
 
@@ -65,13 +66,17 @@ export default function Home() {
         }
     }, [])
 
+    useEffect(() => {
+        setDisplaySettings(false)
+    }, [displayModal])
+
     return (
         <main className="w-screen h-screen grid place-items-center p-5 text-2xl font-bold">
             <div className="w-full h-full bg-zinc-700/60 flex flex-col items-center p-10 gap-10 shadow-xl shadow-emerald-700/50 rounded-md">
                 <div className="w-full h-20 flex items-center shadow-2xl">
-                    <div className="w-1/3 h-full flex items-center justify-end mr-10 rounded-md">
+                    <div className="w-1/3 h-full flex items-center justify-end mr-0 md:mr-10 rounded-md">
                         { true ?
-                            <div className="w-2/3 h-full">
+                            <div className="w-full md:w-2/3 h-full">
                                 <Operators operation={operation} setOperation={setOperation} />
                             </div>
                         :
@@ -108,7 +113,7 @@ export default function Home() {
                     </button>
                 </div>
 
-                <div className="w-full h-full flex flex-row gap-5 p-10">
+                <div className="relative w-full h-full flex flex-row gap-5 p-10">
                     <AnimatePresence>
                         {
                             words.map((word, index) => {
@@ -125,6 +130,18 @@ export default function Home() {
                             })
                         }
                     </AnimatePresence>
+
+                    <motion.button className="absolute -top-2 -right-2 w-10 h-10"
+                        initial={{ opacity: 0, rotate: 180 }}
+                        animate={{ opacity: 1, rotate: 0 }}
+                        
+                        whileHover={{ scale: 1.1, rotate: 45 }}
+                        whileTap={{ scale: 0.9, rotate: 180}}
+
+                        onClick={() => setDisplaySettings(true)}
+                    >
+                        <img src="/settings.png" alt="settings" />
+                    </motion.button>
                 </div>
 
                 <div className="w-full h-20 flex items-center justify-center shadow-lg rounded-md">
@@ -158,6 +175,40 @@ export default function Home() {
                     </>
                 }
             </AnimatePresence>
+
+            <AnimatePresence>
+                { displaySettings &&
+                    <>
+                        <div className="absolute w-screen h-screen"
+                            onClick={() => setDisplaySettings(false)}
+                        >
+
+                        </div>
+
+                        <div className="absolute right-5 w-2/5 h-full p-10">
+                            <motion.div className="w-full h-full flex flex-col items-center justify-center bg-transparent backdrop-blur-xl shadow-2xl shadow-emerald-700/30 border-black/20 border-[2px] rounded-md"
+                                initial={{ opacity: 0.5, x: 800 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0.5, x: 800 }}
+
+                                transition={{ duration: 0.5, ease: "easeInOut"}}
+                            >
+                                idk settings
+
+                                <motion.button className="absolute right-5 top-5"
+                                    onClick={() => setDisplaySettings(false)}
+
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    X
+                                </motion.button>
+                            </motion.div>
+                        </div>
+                    </>
+                }
+            </AnimatePresence>
         </main>
     );
 }
@@ -172,8 +223,7 @@ function DisplayWord({ word, operation, index, setWords } : { word: string, oper
                 newArr.splice(index, 1)
 
                 if (operation === "None" && newArr.length !== 0) {
-                    alert("You can't remove the first word withour removeing the operation first.")
-                    return prev
+                    return []
                 } else {
                     return newArr
                 }
@@ -198,7 +248,7 @@ function DisplayWord({ word, operation, index, setWords } : { word: string, oper
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        Click to remove
+                        {operation !== "None" ? "Click to remove" : "Click to remove all"}
                     </motion.span>
                 }
             </AnimatePresence>
@@ -218,9 +268,9 @@ function Operators({ operation, setOperation }) {
     const mul = useRef<HTMLDivElement>(null);
     const div = useRef<HTMLDivElement>(null);
 
+
     useEffect(() => {
         const containerRect = container.current.getBoundingClientRect();
-        placeholder.current.style.top = containerRect.height + placeholder.current.offsetHeight / 6  + "px"
         switch (hoveringOperation) {
             case 0:
                 placeholder.current.style.left = add.current.offsetLeft + containerRect.left - placeholder.current.offsetWidth / 4 + "px"
@@ -242,18 +292,41 @@ function Operators({ operation, setOperation }) {
 
     useEffect(() => {
         const containerRect = container.current.getBoundingClientRect();
-        selected.current.style.left = placeholder.current.offsetLeft + "px"
+        placeholder.current.style.top = containerRect.height + placeholder.current.offsetHeight / 6  + "px"
+        
+        placeholder.current.style.left = sub.current.offsetLeft + containerRect.left - placeholder.current.offsetWidth / 4 + "px"
+    }, [])
+
+    useEffect(() => {
         selected.current.style.top = placeholder.current.offsetTop + "px"
+
+        const containerRect = container.current.getBoundingClientRect();
+        switch (operation) {
+            case "+":
+                selected.current.style.left = add.current.offsetLeft + containerRect.left - selected.current.offsetWidth / 4 + "px"
+                break
+            
+            case "-":
+                selected.current.style.left = sub.current.offsetLeft + containerRect.left - selected.current.offsetWidth / 4 + "px"
+                break
+            
+            case "*":
+                selected.current.style.left = mul.current.offsetLeft + containerRect.left - selected.current.offsetWidth / 4 + "px"
+                break
+            
+            case "/":
+                selected.current.style.left = div.current.offsetLeft + containerRect.left - selected.current.offsetWidth / 4 + "px"
+                break
+        } 
     }, [operation])
-    
+
+
     return (
         <>
             <motion.div className="relative cursor-none w-full flex items-center justify-evenly h-full"
                 onMouseMove={event => {
                     let bounds = (event.target as HTMLDivElement).getBoundingClientRect();
                     let step = bounds.width / 4
-
-                    console.log(event.clientX, bounds.left)
 
                     if (event.clientX - bounds.left < step) {
                         setHoveringOperation(0)
@@ -287,12 +360,17 @@ function Operators({ operation, setOperation }) {
                 <span className="pointer-events-none" ref={div}> / </span>
             </motion.div>
             
-            <motion.div className="absolute transition-all duration-300 rounded-full border-[2px] border-white w-10 h-10 z-20 pointer-events-none"
+            <motion.div className="absolute transition-all duration-300 rounded-full border-[2px] border-white w-8 md:w-10 h-8 md:h-10 pointer-events-none"
                 style={hovering ? { opacity: 1 } : { opacity: 0 }}
                 ref={placeholder}
+
+                transition={{ duration: 0.01, ease: "easeInOut"}}
             />
 
-            <motion.div className="absolute transition-all duration-300 rounded-full border-[2px] border-emerald-500 w-10 h-10 z-30 pointer-events-none"
+            <motion.div className="absolute transition-all duration-300 rounded-full border-[2px] border-emerald-500/70 w-8 md:w-10 h-8 md:h-10 pointer-events-none"
+                initial={{ opacity: 0, borderRadius: "10%"}}
+                animate={{ opacity: 1, borderRadius: "50%" }}
+
                 ref={selected}
             />
 

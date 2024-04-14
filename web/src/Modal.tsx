@@ -15,8 +15,8 @@ const variants = {
     },
 
     display: { 
-        width: "98%", 
-        height: "95%",
+        width: "100%", 
+        height: "100%",
         opacity: 1,
     },
     
@@ -54,7 +54,7 @@ export default function Modal({ words } : { words: Array<Word> }) {
 
     return (
         <motion.main className="absolute w-screen h-screen grid place-items-center p-16 z-50">
-            <motion.div className="relative bg-zinc-500/10 backdrop-blur-xl border-2 border-black/20 overflow-hidden"
+            <motion.div className="relative bg-zinc-500/10 backdrop-blur-xl border-2 border-emerald-500 overflow-hidden"
                 variants={variants}
                 animate={ansawer === null ? "calculating" : "display"}
                 exit="exit"

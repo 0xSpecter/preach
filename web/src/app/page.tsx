@@ -77,7 +77,7 @@ export default function Home() {
                     <div className="w-1/3 h-full flex items-center justify-end mr-0 md:mr-10 rounded-md">
                         { true ?
                             <div className="w-full md:w-2/3 h-full">
-                                <Operators operation={operation} setOperation={setOperation} />
+                                <Operators operation={operation} setOperation={setOperation} inital={inital}/>
                             </div>
                         :
                             <>
@@ -256,7 +256,7 @@ function DisplayWord({ word, operation, index, setWords } : { word: string, oper
     )
 }
 
-function Operators({ operation, setOperation }) {
+function Operators({ operation, setOperation, inital }) {
     const [hoveringOperation, setHoveringOperation] = useState<number>(null);
     const [hovering, setHovering] = useState<boolean>(false);
     
@@ -338,6 +338,8 @@ function Operators({ operation, setOperation }) {
                         setHoveringOperation(3)
                     }
                 }}
+
+                style={inital ? { opacity: 0.5 } : { opacity: 1 }}
                 
                 onClick={() => {
                     if (hoveringOperation !== null) {
